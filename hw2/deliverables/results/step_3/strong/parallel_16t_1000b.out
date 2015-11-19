@@ -1,0 +1,23 @@
+OMP_NUM_THREADS=16 ./nbodypar.out 1000
+
+
+Number Objects = 1000
+Number Steps   = 100
+Timestep (dt)  = 0.01
+Alignment      = 8 bytes
+ValueType      = double
+Format         = StructureOfArrays
+NumberThreads  = 16
+min/max/ave velocity = 2.458533e-01, 2.904400e+01, 2.636857e+00
+min/max/ave velocity = 5.589022e+00, 1.243122e+03, 5.232863e+01
+min/max/ave velocity = 4.429486e+00, 1.243119e+03, 4.811707e+01
+min/max/ave velocity = 4.219912e+00, 1.243119e+03, 4.748246e+01
+min/max/ave velocity = 4.121452e+00, 1.243118e+03, 4.726351e+01
+min/max/ave velocity = 4.071669e+00, 1.243118e+03, 4.712275e+01
+min/max/ave velocity = 4.041052e+00, 1.243118e+03, 4.703484e+01
+min/max/ave velocity = 4.020119e+00, 1.243118e+03, 4.697420e+01
+min/max/ave velocity = 4.004863e+00, 1.243118e+03, 4.692985e+01
+min/max/ave velocity = 3.993244e+00, 1.243118e+03, 4.689606e+01
+Average time = 1.369499 (ms) per step with 1000 elements 54.69 KB over 100 steps
+
+

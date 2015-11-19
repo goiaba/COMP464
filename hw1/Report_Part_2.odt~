@@ -1,0 +1,24 @@
+Plot the bandwidth for the four tests as a function of array size. Also plot the uncertainty. Write a brief summary of your results discussing the bandwidth as a function of size. Explain how you would predict where the bandwidth should change.
+
+The main idea is that every time the data size used in the problem solution increase to a size bigger than the current cache level there will be a decrease in the bandwidth. This happens because of the characteristics of memory hierarchy.
+
+Taking into consideration the characteristics of the machine used to run the tests and the quantity of memory used for each array element we can define when the bandwidth drops (walls) would happen:
+
+cache level | size	| # of array elements
+L1	    | 64KB	| 4096
+L2	    | 512KB	| 32768
+L3	    | 3072KB	| 196608
+
+Accordingly to the table above, creating an array with more than 4096 elements should create a "wall" into the chart dropping the bandwidth and this would represent the need of use of a higher level of cache (L2). The same would happen after 32768 (L3) and 196608 (RAM) elements.
+
+Unfortunatelly, this behavior can't be seen in the chart.
+
+
+measuring elapsed time.
+
+Important questions:
+	are we measuring wall clock time (cpu clock time is no more used in multiprocessed computers)
+	what is the precision of wall clock time
+
+
+*** close all programs and rerun the benchmark!!!!

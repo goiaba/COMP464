@@ -1,0 +1,10 @@
+ITERATIVE MATRIX INVERSION METHOD (JACOBI ITERATION)
+
+two dimensional partitioning
+ghost and halo points
+
+to compile the code: mpicxx
+
+OpenMPI and MPICH to install mpi in the machine.
+
+measure the communication cost when using mpi (final project)

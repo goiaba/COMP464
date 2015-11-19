@@ -1,0 +1,35 @@
+"Step", "Type", "Threads", "Bodies", "Average Time"
+Step 0, Serial, 1, 10000, 727.079904
+Step 0, Serial, 1, 1000, 7.276161
+Step 0, Serial, 1, 100, 0.076334
+
+Step 2, Parallel, 2, 1000, 4.000482
+Step 2, Parallel, 2, 1000, 4.067668
+
+Step 2, Parallel, 4, 1000, 2.316886
+Step 2, Parallel, 4, 1000, 2.288675
+
+Step 3, strong/Parallel, 2, 100, 0.076299
+Step 3, strong/Parallel, 4, 100, 0.095709
+Step 3, strong/Parallel, 8, 100, 0.123845
+Step 3, strong/Parallel, 16, 100, 2.162628
+
+Step 3, strong/Parallel, 2, 1000, 4.000482
+Step 3, strong/Parallel, 4, 1000, 2.288675
+Step 3, strong/Parallel, 8, 1000, 1.714869
+Step 3, strong/Parallel, 16, 1000, 1.369499
+
+Step 3, strong/Parallel, 2, 10000, 368.242240
+Step 3, strong/Parallel, 4, 10000, 184.157382
+Step 3, strong/Parallel, 8, 10000, 92.240465
+Step 3, strong/Parallel, 16, 10000, 93.498535
+
+Step 3, weak/Parallel, 2, 200, 0.212076
+Step 3, weak/Parallel, 4, 400, 0.748762
+Step 3, weak/Parallel, 8, 800, 1.305741
+Step 3, weak/Parallel, 16, 1600, 4.845400
+
+Step 3, weak/Parallel, 2, 2000, 15.150346
+Step 3, weak/Parallel, 4, 4000, 29.840329
+Step 3, weak/Parallel, 8, 8000, 59.201949
+Step 3, weak/Parallel, 16, 16000, 227.111706

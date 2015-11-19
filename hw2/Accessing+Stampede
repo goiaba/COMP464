@@ -1,0 +1,9 @@
+There are three ways to access Stampede:
+
+1) ssh -l <your TACC user name> stampede.tacc.utexas.edu
+
+2) i) ssh -l <your XSEDE user name> login.xsede.org; ii) gsissh -p 2222 stampede.tacc.utexas.edu
+
+3) Log onto Shannon (see other how-to) and then use option (1).
+
+Putty SSH is a good way to transfer files but that requires that option (1) is working. I'll figure out a strategy if option (2) is the only other way.

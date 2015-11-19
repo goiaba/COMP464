@@ -1,0 +1,5 @@
+You can compiling with two different compilers on Stampede. The GNU GCC C++ compiler is there (g++) and so is the Intel C++ compiler (icpc). To build an OpenMP code you use:
+
+GCC: g++ -O3 -fopenmp <your source>.cpp
+
+ICPC: icpc -O3 -fopenmp <your source>.cpp
