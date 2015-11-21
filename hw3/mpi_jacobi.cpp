@@ -72,15 +72,8 @@ MPI_Comm Comm = MPI_COMM_NULL;
 // neighbors.
 void exchange_boundaries (double **x, int Ni, int Nj)
 {
-   /* MPI_PROC_NULL - This rank may be used to send or receive from no-one.
-    *  http://linux.die.net/man/3/mpi_proc_null
-    */
-   // int leftRank = MPI_PROC_NULL;
-   // int rightRank = MPI_PROC_NULL;
-   // int upperRank = MPI_PROC_NULL;
-   // int downRank = MPI_PROC_NULL;
 
-   int size = iEnd[iProc][jProc] - iStart[iProc][jProc] + 1;
+   int size = jEnd[iProc][jProc] - jStart[iProc][jProc] + 1;
 
    if (iProc>0) { //send left
       int leftRank = ProcMap[iProc-1][jProc];
@@ -117,6 +110,8 @@ void exchange_boundaries (double **x, int Ni, int Nj)
          MPI_COMM_WORLD, 
          MPI_STATUS_IGNORE);
    }
+
+   size = iEnd[iProc][jProc] - iStart[iProc][jProc] + 1;
 
    if (jProc>0) { //send up
       int upperRank = ProcMap[iProc][jProc-1];
