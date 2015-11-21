@@ -53,17 +53,6 @@ T ** DeallocateMesh (T ** ptr)
    return NULL;
 }
 
-// template <typename T>
-// T * AllocateArray (const int N) {
-//    T *data = new T* [N];
-
-// }
-
-// template <typename T>
-// T * DeallocateArray (T * ptr) {
-
-// }
-
 int numProcs = -1;
 int myRank = -1;
 int **ProcMap = NULL;
@@ -75,7 +64,8 @@ int **iStart = NULL;
 int **iEnd   = NULL;
 int **jStart = NULL;
 int **jEnd   = NULL;
-const int MPI_TAG_EXCHANGE = 0;
+const int MPI_TAG_EXCHANGE_RL = 0;
+const int MPI_TAG_EXCHANGE_UD = 0;
 MPI_Comm Comm = MPI_COMM_NULL;
 
 // Send/recv the edges of each grid to the north/south/east/west
@@ -85,88 +75,109 @@ void exchange_boundaries (double **x, int Ni, int Nj)
    /* MPI_PROC_NULL - This rank may be used to send or receive from no-one.
     *  http://linux.die.net/man/3/mpi_proc_null
     */
-   int leftRank = MPI_PROC_NULL;
-   int rightRank = MPI_PROC_NULL;
-   int upperRank = MPI_PROC_NULL;
-   int downRank = MPI_PROC_NULL;
+   // int leftRank = MPI_PROC_NULL;
+   // int rightRank = MPI_PROC_NULL;
+   // int upperRank = MPI_PROC_NULL;
+   // int downRank = MPI_PROC_NULL;
 
-   int column = 0;
-   int row = 0;
+   int size = iEnd[iProc][jProc] - iStart[iProc][jProc] + 1;
 
-   for (int i=0; i<numProcs_i; i++)
-      for (int j=0; j<numProcs_j; j++)
-         if (ProcMap[i][j] == myRank) {
-            column = i;
-            row = j;
-            break;
-         }
-
-   int size = iEnd[column][row] - iStart[column][row] + 1;
-
-   if (column>0) { //send left
-      leftRank = myRank - numProcs_j;
-      printf("left> myRank is %d and I'm exchanging boudary with rank %d\n", myRank, leftRank);
-      // MPI_Sendrecv(&x[1], size, MPI_DOUBLE, leftRank, MPI_TAG_EXCHANGE, &x[Ni-1], size, MPI_DOUBLE, leftRank, MPI_TAG_EXCHANGE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+   if (iProc>0) { //send left
+      int leftRank = ProcMap[iProc-1][jProc];
+      // printf("<left> myRank is %d and I'm exchanging boudary with rank %d.\n", myRank, leftRank);
+      MPI_Sendrecv(
+         x[1], 
+         size, 
+         MPI_DOUBLE, 
+         leftRank, 
+         MPI_TAG_EXCHANGE_RL, 
+         x[0],
+         size, 
+         MPI_DOUBLE, 
+         leftRank, 
+         MPI_TAG_EXCHANGE_RL, 
+         MPI_COMM_WORLD, 
+         MPI_STATUS_IGNORE);
    }
 
-   if (column<numProcs_i-1) { //send right
-      rightRank = myRank + numProcs_j;
-      printf("right> myRank is %d and I'm exchanging boudary with rank %d\n", myRank, rightRank);
-      // MPI_Sendrecv(&x[Ni-2], size, MPI_DOUBLE, rightRank, MPI_TAG_EXCHANGE, &x[0], size, MPI_DOUBLE, rightRank, MPI_TAG_EXCHANGE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+   if (iProc<numProcs_i-1) { //send right
+      int rightRank = ProcMap[iProc+1][jProc];
+      // printf("right> myRank is %d and I'm exchanging boudary with rank %d\n", myRank, rightRank);
+      MPI_Sendrecv(
+         x[Ni-2], 
+         size, 
+         MPI_DOUBLE, 
+         rightRank, 
+         MPI_TAG_EXCHANGE_RL, 
+         x[Ni-1], 
+         size, 
+         MPI_DOUBLE, 
+         rightRank, 
+         MPI_TAG_EXCHANGE_RL, 
+         MPI_COMM_WORLD, 
+         MPI_STATUS_IGNORE);
    }
 
-   if (row>0) { //send up
-      upperRank = myRank - 1;
-      printf("upper> myRank is %d and I'm exchanging boudary with rank %d\n", myRank, upperRank);
+   if (jProc>0) { //send up
+      int upperRank = ProcMap[iProc][jProc-1];
+      // printf("up> myRank is %d and I'm exchanging boudary with rank %d\n", myRank, upperRank);
+      double *arraySend = new double[size];
+      double *arrayReceive = new double[size];
+
+      for (int k=1; k<Ni-1; k++)
+         arraySend[k-1] = x[k][1];
+
+      MPI_Sendrecv(
+         arraySend, 
+         size, 
+         MPI_DOUBLE, 
+         upperRank, 
+         MPI_TAG_EXCHANGE_UD, 
+         arrayReceive, 
+         size, 
+         MPI_DOUBLE, 
+         upperRank, 
+         MPI_TAG_EXCHANGE_UD, 
+         MPI_COMM_WORLD, 
+         MPI_STATUS_IGNORE);
+
+      for (int k=1; k<Ni-1; k++) {
+         x[k][0] = arrayReceive[k-1];
+      }
+      
+      if (arraySend) delete [] arraySend;
+      if (arrayReceive) delete [] arrayReceive;
    }
 
-   if (row<numProcs_j-1) { //send down
-      downRank = myRank + 1;
-      printf("down> myRank is %d and I'm exchanging boudary with rank %d\n", myRank, downRank);
+   if (jProc<numProcs_j-1) { //send down
+      int downRank = ProcMap[iProc][jProc+1];
+      // printf("down> myRank is %d and I'm exchanging boudary with rank %d\n", myRank, downRank);
+      double *arraySend = new double[size];
+      double *arrayReceive = new double[size];
+      
+      for (int k=1; k<Ni-1; k++)
+         arraySend[k-1] = x[k][Nj-2];
+
+      MPI_Sendrecv(
+         arraySend, 
+         size, 
+         MPI_DOUBLE, 
+         downRank, 
+         MPI_TAG_EXCHANGE_UD, 
+         arrayReceive, 
+         size, 
+         MPI_DOUBLE, 
+         downRank, 
+         MPI_TAG_EXCHANGE_UD, 
+         MPI_COMM_WORLD, 
+         MPI_STATUS_IGNORE);
+
+      for (int k=1; k<Ni-1; k++)
+         x[k][Nj-1] = arrayReceive[k-1];
+      
+      if (arraySend) delete [] arraySend;
+      if (arrayReceive) delete [] arrayReceive;
    }
-
-
-
-            // if (i>0) { //send left
-            //    leftRank = j - numProcs_j + i * numProcs_j;
-            //    MPI_Sendrecv(&x[1], size, MPI_DOUBLE, leftRank, MPI_TAG_EXCHANGE, &x[Ni-1], size, MPI_DOUBLE, leftRank, MPI_TAG_EXCHANGE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            // }
-
-            // if (i<numProcs_i-1) { //send right
-            //    rightRank = j + (i + 1) * numProcs_j;
-            //    MPI_Sendrecv(&x[Ni-2], size, MPI_DOUBLE, rightRank, MPI_TAG_EXCHANGE, &x[0], size, MPI_DOUBLE, rightRank, MPI_TAG_EXCHANGE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            // }
-
-            // size = iEnd[i][j] - iStart[i][j] + 1;
-
-            // if (j>0) { //send up
-            //    upperRank = myRank-1;
-            //    double *arraySend = new double* [size];
-            //    double *arrayReceive = new double* [size];
-            //    for (int k=1; k<Ni-1; k++) {
-            //       arraySend[k-1] = x[k][1];
-            //       arrayReceive[k-1] = x[k][Nj-1];
-            //    }
-            //    MPI_Sendrecv(arraySend, size, MPI_DOUBLE, rightRank, MPI_TAG_EXCHANGE, arrayReceive, size, MPI_DOUBLE, rightRank, MPI_TAG_EXCHANGE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-               
-            //    if (arraySend) delete [] arraySend;
-            //    if (arrayReceive) delete [] arrayReceive;
-
-            // }
-
-            // if (j<numProcs_j-1) { //send down
-            //    downRank = myRank+1;
-            //    double *arraySend = new double* [size];
-            //    double *arrayReceive = new double* [size];
-            //    for (int k=1; k<Ni-1; k++) {
-            //       arraySend[k-1] = x[k][Nj-1];
-            //       arrayReceive[k-1] = x[k][1];
-            //    }
-            //    MPI_Sendrecv(arraySend, size, MPI_DOUBLE, rightRank, MPI_TAG_EXCHANGE, arrayReceive, size, MPI_DOUBLE, rightRank, MPI_TAG_EXCHANGE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-               
-            //    if (arraySend) delete [] arraySend;
-            //    if (arrayReceive) delete [] arrayReceive;
-            // }
 }
 
 int main (int argc, char* argv[])
@@ -378,7 +389,7 @@ int main (int argc, char* argv[])
     *  communication time. Reduce these three values to find the maximum across all of the 
     *  processes.
     */
-   double local_total_time = 1000*total_time;
+   double local_total_time = 1000*(total_time+mpi_p2p_time+mpi_coll_time);
    double global_total_time;
 
    MPI_Reduce(&local_total_time, &global_total_time, 1, MPI_DOUBLE, MPI_MAX, 0, Comm);
@@ -391,6 +402,7 @@ int main (int argc, char* argv[])
       char flname[12];
       sprintf(flname, "jacobi%d.out", myRank);
       FILE *f = fopen(flname,"w");
+
       for (int i = 0; i < Ni; ++i)
          for (int j = 0; j < Nj; ++j)
             fprintf(f,"%e %e %e\n", (iStart[iProc][jProc]+i-1)/double(N-1), (jStart[iProc][jProc]+j-1)/double(N-1), x[i][j]);
