@@ -79,12 +79,12 @@ void exchange_boundaries (double **x, int Ni, int Nj)
       int leftRank = ProcMap[iProc-1][jProc];
       // printf("<left> myRank is %d and I'm exchanging boudary with rank %d.\n", myRank, leftRank);
       MPI_Sendrecv(
-         x[1], 
+         &x[1][1], 
          size, 
          MPI_DOUBLE, 
          leftRank, 
          MPI_TAG_EXCHANGE_RL, 
-         x[0],
+         &x[0][1],
          size, 
          MPI_DOUBLE, 
          leftRank, 
@@ -97,12 +97,12 @@ void exchange_boundaries (double **x, int Ni, int Nj)
       int rightRank = ProcMap[iProc+1][jProc];
       // printf("right> myRank is %d and I'm exchanging boudary with rank %d\n", myRank, rightRank);
       MPI_Sendrecv(
-         x[Ni-2], 
+         &x[Ni-2][1], 
          size, 
          MPI_DOUBLE, 
          rightRank, 
          MPI_TAG_EXCHANGE_RL, 
-         x[Ni-1], 
+         &x[Ni-1][1], 
          size, 
          MPI_DOUBLE, 
          rightRank, 
@@ -234,7 +234,7 @@ int main (int argc, char* argv[])
    numProcs_j = jmin;
 
    if (myRank == 0)
-      printf("numProcs, i, j = %d, %d, %d\n", numProcs, numProcs_i, numProcs_j);
+      printf("[new] numProcs, i, j = %d, %d, %d\n", numProcs, numProcs_i, numProcs_j);
 
    // Create a mapping of processes onto the 2d mesh.
    //int **ProcMap = AllocateMesh<int>(numProcs_i, numProcs_j);
@@ -378,19 +378,8 @@ int main (int argc, char* argv[])
 
    MPI_Reduce (local_times, global_times, 3, MPI_DOUBLE, MPI_MAX, 0, Comm);
 
-   /*
-    * The last thing is to find the maximum run time for each process. I have added timers to 
-    *  measure the total time, the point-to-point communication time, and the collection 
-    *  communication time. Reduce these three values to find the maximum across all of the 
-    *  processes.
-    */
-   double local_total_time = 1000*(total_time+mpi_p2p_time+mpi_coll_time);
-   double global_total_time;
-
-   MPI_Reduce(&local_total_time, &global_total_time, 1, MPI_DOUBLE, MPI_MAX, 0, Comm);
-
    if (myRank == 0)
-      printf("N = %d Iterations = %d  residual = %e time = %f %f %f Max time = %f Procs = %d %d %d %d\n", N, iteration, residual, global_times[0], global_times[1], global_times[2], global_total_time, numProcs, numProcs_i, numProcs_j, numThreads);
+      printf("N = %d Iterations = %d  residual = %e time = %f %f %f Procs = %d %d %d %d\n", N, iteration, residual, global_times[0], global_times[1], global_times[2], numProcs, numProcs_i, numProcs_j, numThreads);
 
    if (N < 100)
    {
@@ -405,6 +394,10 @@ int main (int argc, char* argv[])
       fclose(f);
    }
 
+   DeallocateMesh(iStart);
+   DeallocateMesh(iEnd);
+   DeallocateMesh(jStart);
+   DeallocateMesh(jEnd);
    DeallocateMesh(xtemp);
    DeallocateMesh(x);
 
