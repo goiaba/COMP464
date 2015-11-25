@@ -65,7 +65,9 @@ int **iEnd   = NULL;
 int **jStart = NULL;
 int **jEnd   = NULL;
 const int MPI_TAG_EXCHANGE_RL = 0;
-const int MPI_TAG_EXCHANGE_UD = 0;
+const int MPI_TAG_EXCHANGE_LR = 1;
+const int MPI_TAG_EXCHANGE_UD = 2;
+const int MPI_TAG_EXCHANGE_DU = 3;
 MPI_Comm Comm = MPI_COMM_NULL;
 
 // Send/recv the edges of each grid to the north/south/east/west
@@ -88,7 +90,7 @@ void exchange_boundaries (double **x, int Ni, int Nj)
          size, 
          MPI_DOUBLE, 
          leftRank, 
-         MPI_TAG_EXCHANGE_RL, 
+         MPI_TAG_EXCHANGE_LR, 
          MPI_COMM_WORLD, 
          MPI_STATUS_IGNORE);
    }
@@ -101,7 +103,7 @@ void exchange_boundaries (double **x, int Ni, int Nj)
          size, 
          MPI_DOUBLE, 
          rightRank, 
-         MPI_TAG_EXCHANGE_RL, 
+         MPI_TAG_EXCHANGE_LR, 
          &x[Ni-1][1], 
          size, 
          MPI_DOUBLE, 
@@ -127,7 +129,7 @@ void exchange_boundaries (double **x, int Ni, int Nj)
          size, 
          MPI_DOUBLE, 
          upperRank, 
-         MPI_TAG_EXCHANGE_UD, 
+         MPI_TAG_EXCHANGE_DU, 
          arrayReceive, 
          size, 
          MPI_DOUBLE, 
@@ -163,7 +165,7 @@ void exchange_boundaries (double **x, int Ni, int Nj)
          size, 
          MPI_DOUBLE, 
          downRank, 
-         MPI_TAG_EXCHANGE_UD, 
+         MPI_TAG_EXCHANGE_DU, 
          MPI_COMM_WORLD, 
          MPI_STATUS_IGNORE);
 
